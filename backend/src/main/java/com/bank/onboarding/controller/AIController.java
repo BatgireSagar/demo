@@ -20,10 +20,12 @@ public class AIController {
     private final AIService aiService;
     private final AIResultsRepository aiResultsRepository;
 
-    @Operation(summary = "Analyze CDD info with AI", description = "Calls Bedrock API for CDD analysis.",
-        responses = {@ApiResponse(responseCode = "200", description = "AI analysis result")})
+    @Operation(summary = "Analyze CDD data with AI", description = "Calls Bedrock API for CDD analysis.",
+        responses = {
+            @ApiResponse(responseCode = "200", description = "AI analysis result returned")
+        })
     @PostMapping("/analyze")
-    public ResponseEntity<AIAnalyzeResponseDTO> analyze(@RequestBody AIAnalyzeRequestDTO request) {
+    public ResponseEntity<AIAnalyzeResponseDTO> analyzeCDD(@RequestBody AIAnalyzeRequestDTO request) {
         AIAnalyzeResponseDTO response = aiService.analyzeCDD(request);
         // Persist result
         AIResults result = AIResults.builder()

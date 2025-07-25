@@ -9,10 +9,12 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/contact-client")
 public class ContactClientController {
     @Operation(summary = "Contact client for clarification", description = "Simulates message/email to client.",
-        responses = {@ApiResponse(responseCode = "200", description = "Contact status")})
+        responses = {
+            @ApiResponse(responseCode = "200", description = "Contact simulated")
+        })
     @PostMapping("/{caseId}")
     public ResponseEntity<String> contactClient(@PathVariable String caseId) {
-        // Simulate sending message/email
-        return ResponseEntity.ok("Client with caseId " + caseId + " has been contacted for clarification.");
+        // Simulate sending a message/email
+        return ResponseEntity.ok("Contacted client for caseId: " + caseId);
     }
 }

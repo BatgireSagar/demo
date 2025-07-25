@@ -3,6 +3,8 @@
 ## Overview
 This project is a production-grade prototype for an AI-powered client onboarding automation system used in investment banking. It assists operations teams in verifying KYC (Know Your Customer) information using AI, based on client-submitted data and external/internal sources.
 
+---
+
 ## Architecture
 ```
 +-----------+        +-----------+        +-----------------+
@@ -15,71 +17,179 @@ This project is a production-grade prototype for an AI-powered client onboarding
                      +-----------+        +-----------------+
 ```
 
-## Modules
-- **Frontend**: React + TailwindCSS, modern UI, API integration
-- **Backend**: Spring Boot (Java 21), REST APIs, OpenAPI docs, JPA, AI integration
-- **Database**: PostgreSQL, JPA entities
-- **AI Integration**: AWS Bedrock (LAGLamda-cddGen)
-- **Orchestration**: Camunda 8 BPMN workflow
-- **DevOps**: Docker Compose for local development
+---
 
-## Setup Instructions
+## Prerequisites
+- **Docker** and **Docker Compose** (recommended for local development)
+- **Java 21** and **Maven** (for backend development)
+- **Node.js** (>=18) and **npm** (for frontend development)
+- **AWS credentials** (for Bedrock integration, optional for local dev)
 
-### Prerequisites
-- Docker & Docker Compose
-- Java 21, Maven (for backend dev)
-- Node.js, npm (for frontend dev)
+---
 
-### 1. Clone the Repository
+## Project Structure
+```
+/workspace/
+├── backend/           # Spring Boot backend
+├── frontend/          # React + TailwindCSS frontend
+├── camunda/           # BPMN workflow files
+├── docker-compose.yaml
+├── README.md
+```
+
+---
+
+## 1. Clone the Repository
 ```bash
 git clone <repo-url>
 cd <repo-root>
 ```
 
-### 2. Run with Docker Compose
+---
+
+## 2. Environment Variables & Configuration
+
+### Backend (`backend/src/main/resources/application.yaml`)
+- **PostgreSQL**: Connection string, username, password
+- **AWS Bedrock**: Region, access key, secret key, model ID (LAGLamda-cddGen)
+- **Camunda**: Zeebe client config
+
+Example:
+```yaml
+spring:
+  datasource:
+    url: jdbc:postgresql://postgres:5432/onboarding
+    username: postgres
+    password: postgres
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+bedrock:
+  region: us-east-1
+  access-key: YOUR_AWS_ACCESS_KEY
+  secret-key: YOUR_AWS_SECRET_KEY
+  model-id: LAGLamda-cddGen
+
+camunda:
+  zeebe:
+    client:
+      broker:
+        gateway-address: camunda:26500
+      security:
+        plaintext: true
+```
+
+---
+
+## 3. Running with Docker Compose (Recommended)
+
+### Start All Services
 ```bash
 docker-compose up --build
 ```
-- This will start backend, frontend, PostgreSQL, and Camunda.
+This will start:
+- **Backend** (Spring Boot, port 8080)
+- **Frontend** (React, port 3000)
+- **PostgreSQL** (port 5432)
+- **Camunda 8** (if included in compose)
 
-### 3. Backend (Spring Boot)
-- API docs available at: `http://localhost:8080/swagger-ui.html`
-- Main endpoints:
-  - `POST /api/client/capture` – Submit CDD info
-  - `GET /api/data/compare/{caseId}` – Compare data
-  - `POST /api/ai/analyze` – AI analysis
-  - `POST /api/contact-client/{caseId}` – Contact client
-  - `GET /api/journey/decision/{caseId}` – Journey recommendation
+### Stopping
+```bash
+docker-compose down
+```
 
-### 4. Frontend (React)
-- Runs on `http://localhost:3000`
-- Modern UI for operations teams
+---
 
-### 5. Database (PostgreSQL)
-- Connection: `postgres:postgres@postgres:5432/onboarding`
-- Tables auto-created by JPA
+## 4. Running Backend Locally (Without Docker)
 
-### 6. Camunda 8
-- BPMN workflow for onboarding automation
-- Camunda UI: `http://localhost:8081` (if mapped)
+### 1. Setup PostgreSQL
+- Ensure PostgreSQL is running locally or via Docker
+- Create a database named `onboarding` (or use the default in `application.yaml`)
 
-### 7. AI Integration
-- AWS Bedrock (LAGLamda-cddGen) integration in backend
-- Configure credentials in `backend/src/main/resources/application.yaml`
-
-## Development Workflow
-- Backend: Standard Spring Boot dev cycle
-- Frontend: Standard React dev cycle
-- Database: Use Docker or local PostgreSQL
-- Camunda: Model BPMN in `camunda/onboarding.bpmn`
-
-## API Documentation
+### 2. Build and Run Backend
+```bash
+cd backend
+mvn clean package
+java -jar target/backend-1.0-SNAPSHOT.jar
+```
+- API available at: `http://localhost:8080`
 - Swagger UI: `http://localhost:8080/swagger-ui.html`
-- OpenAPI annotations in all controllers
 
-## Contributing
+---
+
+## 5. Running Frontend Locally (Without Docker)
+```bash
+cd frontend
+npm install
+npm start
+```
+- App available at: `http://localhost:3000`
+
+---
+
+## 6. Database Details
+- **Default user:** `postgres`
+- **Default password:** `postgres`
+- **Default DB:** `onboarding`
+- **Tables:**
+  - `client_info`
+  - `companies_house_data`
+  - `customer_system_data`
+  - `ai_results`
+  - `case_journey`
+- Tables are auto-created by JPA on first run.
+
+---
+
+## 7. Camunda Orchestration
+- BPMN files in `/camunda/onboarding.bpmn`
+- Camunda Zeebe client configured in backend
+- Camunda UI (if mapped): `http://localhost:8081`
+
+---
+
+## 8. AI Integration (AWS Bedrock)
+- Model: `LAGLamda-cddGen`
+- Configure AWS credentials in `application.yaml`
+- For local/mock development, the AI service returns a stubbed response
+
+---
+
+## 9. API Documentation
+- **Swagger UI:** `http://localhost:8080/swagger-ui.html`
+- All endpoints are annotated with OpenAPI for easy testing
+
+---
+
+## 10. Troubleshooting
+- **Ports in use:** Make sure 5432 (Postgres), 8080 (backend), 3000 (frontend) are free
+- **Database connection errors:** Check Docker Compose logs or your local Postgres instance
+- **AWS errors:** Ensure credentials are set if using real Bedrock integration
+- **Camunda not connecting:** Check Zeebe config in `application.yaml`
+
+---
+
+## 11. Development Workflow
+- **Backend:**
+  - Edit code in `backend/`, use `mvn spring-boot:run` for hot reload
+- **Frontend:**
+  - Edit code in `frontend/`, use `npm start` for hot reload
+- **Database:**
+  - Use Docker or local Postgres, tables auto-created
+- **Camunda:**
+  - Model BPMN in `/camunda/onboarding.bpmn`
+
+---
+
+## 12. Contributing
 - PRs welcome! Please follow code style and add tests where possible.
 
 ---
 
-For detailed module documentation, see the `/docs` folder (to be created for extended docs).
+## 13. Support
+For issues, please open a GitHub issue or contact the maintainer.
