@@ -25,9 +25,8 @@ public class AIController {
             @ApiResponse(responseCode = "200", description = "AI analysis result returned")
         })
     @PostMapping("/analyze")
-    public ResponseEntity<AIAnalyzeResponseDTO> analyzeCDD(@RequestBody AIAnalyzeRequestDTO request) {
+    public ResponseEntity<AIAnalyzeResponseDTO> analyze(@RequestBody AIAnalyzeRequestDTO request) {
         AIAnalyzeResponseDTO response = aiService.analyzeCDD(request);
-        // Persist result
         AIResults result = AIResults.builder()
                 .caseId((String) request.getInput().getOrDefault("caseId", ""))
                 .conflicts(response.getConflicts() != null ? response.getConflicts().toString() : null)

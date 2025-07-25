@@ -9,8 +9,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Optional;
-
 @RestController
 @RequestMapping("/api/journey")
 @RequiredArgsConstructor
@@ -22,20 +20,15 @@ public class JourneyController {
             @ApiResponse(responseCode = "200", description = "Journey decision returned")
         })
     @GetMapping("/decision/{caseId}")
-    public ResponseEntity<JourneyDecisionDTO> getJourneyDecision(@PathVariable String caseId) {
-        Optional<CaseJourney> journeyOpt = caseJourneyRepository.findByCaseId(caseId);
-        if (journeyOpt.isPresent()) {
-            CaseJourney journey = journeyOpt.get();
-            return ResponseEntity.ok(JourneyDecisionDTO.builder()
-                    .caseId(journey.getCaseId())
-                    .journeyType(journey.getJourneyType())
-                    .build());
-        } else {
-            // Mocked response if not found
-            return ResponseEntity.ok(JourneyDecisionDTO.builder()
-                    .caseId(caseId)
-                    .journeyType("Standard")
-                    .build());
-        }
+    public ResponseEntity<JourneyDecisionDTO> getDecision(@PathVariable String caseId) {
+        return caseJourneyRepository.findByCaseId(caseId)
+                .map(journey -> ResponseEntity.ok(JourneyDecisionDTO.builder()
+                        .caseId(caseId)
+                        .journeyType(journey.getJourneyType())
+                        .build()))
+                .orElseGet(() -> ResponseEntity.ok(JourneyDecisionDTO.builder()
+                        .caseId(caseId)
+                        .journeyType("Standard") // Default/mock
+                        .build()));
     }
 }

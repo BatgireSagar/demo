@@ -15,6 +15,6 @@ public class ContactClientController {
     @PostMapping("/{caseId}")
     public ResponseEntity<String> contactClient(@PathVariable String caseId) {
         // Simulate sending a message/email
-        return ResponseEntity.ok("Contacted client for caseId: " + caseId);
+        return ResponseEntity.ok("Client with caseId " + caseId + " has been contacted for clarification.");
     }
 }
