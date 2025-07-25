@@ -29,8 +29,26 @@ public class DataController {
 
         DataCompareResponseDTO dto = DataCompareResponseDTO.builder()
                 .cddInfo(cddOpt.map(this::toClientInfoDTO).orElse(null))
-                .companiesHouse(chOpt.map(this::toCompaniesHouseDTO).orElse(null))
-                .customerSystem(csOpt.map(this::toCustomerSystemDTO).orElse(null))
+                .companiesHouse(chOpt.map(this::toCompaniesHouseDTO).orElseGet(() -> CompaniesHouseDTO.builder()
+                        .caseId(caseId)
+                        .fullLegalName("Mocked Co Ltd")
+                        .registeredNumber("12345678")
+                        .registeredAddress("1 Mock Street, London")
+                        .legalForm("Private Limited")
+                        .countryOfEstablishment("UK")
+                        .dateOfIncorporation(java.time.LocalDate.of(2010, 1, 1))
+                        .tradingName("Mocked Trading")
+                        .build()))
+                .customerSystem(csOpt.map(this::toCustomerSystemDTO).orElseGet(() -> CustomerSystemDTO.builder()
+                        .caseId(caseId)
+                        .fullLegalName("Mocked Co Ltd")
+                        .registeredNumber("12345678")
+                        .registeredAddress("1 Mock Street, London")
+                        .legalForm("Private Limited")
+                        .countryOfEstablishment("UK")
+                        .dateOfIncorporation(java.time.LocalDate.of(2010, 1, 1))
+                        .tradingName("Mocked Trading")
+                        .build()))
                 .build();
         return ResponseEntity.ok(dto);
     }
